@@ -2,7 +2,8 @@
   "name": "Kalori Sayıcı Pro",
   "short_name": "Kalori Pro",
   "description": "AI destekli kalori ve beslenme takip uygulaması",
-  "start_url": "/",
+  "start_url": "/kalori-sayici/",
+  "scope": "/kalori-sayici/",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
@@ -27,7 +28,7 @@
       "name": "Hızlı Ekle",
       "short_name": "Ekle",
       "description": "Hızlı yemek ekle",
-      "url": "/?tab=add",
+      "url": "/kalori-sayici/?tab=add",
       "icons": [
         {
           "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E➕%3C/text%3E%3C/svg%3E",
@@ -39,7 +40,7 @@
       "name": "Sesli Giriş",
       "short_name": "Sesli",
       "description": "Sesli yemek ekle",
-      "url": "/?tab=voice",
+      "url": "/kalori-sayici/?tab=voice",
       "icons": [
         {
           "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🎤%3C/text%3E%3C/svg%3E",
