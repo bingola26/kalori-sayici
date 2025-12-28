@@ -1,8 +1,9 @@
 const CACHE_NAME = 'kalori-sayici-v1';
+const BASE_PATH = '/kalori-sayici';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  BASE_PATH + '/',
+  BASE_PATH + '/index.html',
+  BASE_PATH + '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js'
 ];
@@ -22,7 +23,7 @@ self.addEventListener('install', event => {
 
 // Fetch from cache
 self.addEventListener('fetch', event => {
-  // API çağrılarını cache'leme - her zaman internetten al
+  // API çağrılarını cache'leme
   if (event.request.url.includes('anthropic.com') || 
       event.request.url.includes('api.')) {
     return fetch(event.request);
@@ -31,20 +32,16 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Cache'de varsa cache'den döndür
         if (response) {
           console.log('📦 Cache\'den yüklendi:', event.request.url);
           return response;
         }
 
-        // Cache'de yoksa internetten al
         return fetch(event.request).then(response => {
-          // Geçerli olmayan istekleri cache'leme
           if (!response || response.status !== 200 || response.type === 'error') {
             return response;
           }
 
-          // Yeni kaynağı cache'e ekle
           const responseToCache = response.clone();
           caches.open(CACHE_NAME)
             .then(cache => {
@@ -53,7 +50,6 @@ self.addEventListener('fetch', event => {
 
           return response;
         }).catch(() => {
-          // Offline durumda - Cache'den dönmeyi dene
           console.log('🚫 Offline - Cache kullanılıyor');
           return caches.match(event.request);
         });
