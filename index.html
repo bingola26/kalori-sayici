@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍎 Kalori Sayıcı Pro</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kalori Pro">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --info: #4299e1;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-tertiary: #edf2f7;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border: #e2e8f0;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #667eea;
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #4a5568;
+            --text-primary: #f7fafc;
+            --text-secondary: #cbd5e0;
+            --border: #4a5568;
+            --shadow: rgba(0,0,0,0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            border-radius: 24px;
+            padding: 0;
+            box-shadow: 0 25px 50px -12px var(--shadow);
+            overflow: hidden;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 30px;
+            color: white;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .welcome-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .macro-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .macro-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .macro-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .macro-label {
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .macro-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .macro-progress {
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .macro-progress-bar {
+            height: 100%;
+            background: white;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .macro-sub {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+
+        .tabs-wrapper {
+            background: var(--bg-secondary);
+            padding: 15px 20px 0 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border);
+            min-width: max-content;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .voice-input-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            color: white;
+        }
+
+        .voice-input-section h3 {
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .voice-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: #f5576c;
+            font-size: 36px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-btn.recording {
+            animation: pulse 1.5s infinite;
+            background: #ff4757;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .voice-transcript {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            min-height: 50px;
+            font-size: 16px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .saved-meals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+        }
+
+        .saved-meal-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .saved-meal-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .saved-meal-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .saved-meal-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .saved-meal-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .meal-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .meal-btn {
+            padding: 16px;
+            border: 2px solid var(--border);
+            background: var(--bg-primary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .meal-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .meal-btn.selected {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .upload-area {
+            border: 3px dashed var(--primary);
+            border-radius: 16px;
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-secondary);
+        }
+
+        .upload-area:hover {
+            border-color: var(--secondary);
+            background: var(--bg-tertiary);
+        }
+
+        .upload-icon {
+            font-size: 52px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .history-item {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .history-item-image {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .history-item-placeholder {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+
+        .history-item-content {
+            flex: 1;
+        }
+
+        .history-item-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .history-item-macros {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .macro-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            font-weight: 600;
+        }
+
+        .history-item-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #000;
+            margin-top: 6px;
+        }
+
+        .history-item-purpose {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 6px;
+        }
+
+        .history-item-calories {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .btn-favorite {
+            background: #ffd700;
+            color: #000;
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-add {
+            background: var(--success);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-tertiary);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            border-radius: 20px;
+            color: white;
+            margin-top: 25px;
+        }
+
+        .score-display {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #f5576c;
+            flex-shrink: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 30px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 15px 10px 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .macro-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .meal-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <div class="header-top">
+                <div class="welcome-text">
+                    <h1 id="welcomeText">Merhaba! 👋</h1>
+                    <p id="subWelcome">Sağlıklı yaşam yolculuğuna devam et</p>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" onclick="toggleTheme()" id="themeToggle">🌙</button>
+                    <div id="premiumBadge" class="icon-btn">FREE</div>
+                </div>
+            </div>
+
+            <div class="macro-dashboard">
+                <div class="macro-card">
+                    <div class="macro-header">
+                        <span class="macro-label">🔥 Kalori</span>
+                        <span class="macro-label" id="calPercent">0%</span>
+                    </div>
+                    <div class="macro-value" id="todayCalories">0</div>
+                    <div class="macro-progress">
+                        <div class="macro-progress-bar" id="calProgress"></div>
+                    </div>
+                    <div class="macro-sub">Hedef: <span id="calGoal">2000</span> kcal</div>
+                </div>
+
+                <div class="macro-card">
+                    <div class="macro-header">
+                        <span class="macro-label">🥩 Protein</span>
+                        <span class="macro-label" id="proteinPercent">0%</span>
+                    </div>
+                    <div class="macro-value" id="todayProtein">0g</div>
+                    <div class="macro-progress">
+                        <div class="macro-progress-bar" id="proteinProgress"></div>
+                    </div>
+                    <div class="macro-sub">Hedef: <span id="proteinGoal">150</span>g</div>
+                </div>
+
+                <div class="macro-card">
+                    <div class="macro-header">
+                        <span class="macro-label">🍞 Karbonhidrat</span>
+                        <span class="macro-label" id="carbsPercent">0%</span>
+                    </div>
+                    <div class="macro-value" id="todayCarbs">0g</div>
+                    <div class="macro-progress">
+                        <div class="macro-progress-bar" id="carbsProgress"></div>
+                    </div>
+                    <div class="macro-sub">Hedef: <span id="carbsGoal">200</span>g</div>
+                </div>
+
+                <div class="macro-card">
+                    <div class="macro-header">
+                        <span class="macro-label">🥑 Yağ</span>
+                        <span class="macro-label" id="fatPercent">0%</span>
+                    </div>
+                    <div class="macro-value" id="todayFat">0g</div>
+                    <div class="macro-progress">
+                        <div class="macro-progress-bar" id="fatProgress"></div>
+                    </div>
+                    <div class="macro-sub">Hedef: <span id="fatGoal">65</span>g</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs-wrapper">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('add')">➕ Ekle</button>
+                <button class="tab" onclick="switchTab('voice')">🎤 Sesli</button>
+                <button class="tab" onclick="switchTab('saved')">📝 Kayıtlı</button>
+                <button class="tab" onclick="switchTab('history')">📊 Bugün</button>
+                <button class="tab" onclick="switchTab('gallery')">📸 Galeri</button>
+                <button class="tab" onclick="switchTab('settings')">⚙️ Ayarlar</button>
+            </div>
+        </div>
+
+        <!-- Tabs content - same as before -->
+        <div id="addTab" class="tab-content active">
+            <div class="meal-selector">
+                <button class="meal-btn selected" data-meal="breakfast">🌅<br>Kahvaltı</button>
+                <button class="meal-btn" data-meal="lunch">☀️<br>Öğle</button>
+                <button class="meal-btn" data-meal="dinner">🌙<br>Akşam</button>
+                <button class="meal-btn" data-meal="snack">🍪<br>Atıştırma</button>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Fotoğraf Yükle</div>
+                <div class="upload-subtext">veya buraya sürükle bırak</div>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+
+            <div id="preview" style="text-align: center; margin-top: 20px;"></div>
+            
+            <button class="btn btn-primary" id="analyzeBtn" disabled style="width: 100%; margin-top: 20px;">
+                🔍 Analiz Et
+            </button>
+
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Claude analiz ediyor...</p>
+            </div>
+
+            <div id="result"></div>
+        </div>
+
+        <!-- Voice Tab -->
+        <div id="voiceTab" class="tab-content">
+            <div class="voice-input-section">
+                <h3>🎤 Sesli Yemek Girişi</h3>
+                <p style="margin-bottom: 20px; opacity: 0.9;">Mikrofona tıkla ve yediğini anlat</p>
+                <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">🎤</button>
+                <div class="voice-transcript" id="voiceTranscript">
+                    Örnek: "120 gram kebab dürüm yedim"
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="voiceAnalyzeBtn" disabled style="width: 100%;" onclick="analyzeVoice()">
+                🔍 Analiz Et
+            </button>
+
+            <div id="voiceLoading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analiz ediliyor...</p>
+            </div>
+
+            <div id="voiceResult"></div>
+        </div>
+
+        <!-- Saved, History, Gallery, Settings tabs - same as before -->
+        <div id="savedTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📝 Kayıtlı Yemeklerim</h3>
+                </div>
+                <div class="saved-meals-grid" id="savedMealsGrid"></div>
+            </div>
+        </div>
+
+        <div id="historyTab" class="tab-content">
+            <div id="todayMeals"></div>
+        </div>
+
+        <div id="galleryTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📸 Yemek Galerisi</h3>
+                </div>
+                <div class="gallery-grid" id="galleryGrid"></div>
+            </div>
+        </div>
+
+        <div id="settingsTab" class="tab-content">
+            <div class="card">
+                <h3 class="card-title" style="margin-bottom: 15px;">👤 Kişisel Bilgiler</h3>
+                <div class="input-group">
+                    <input type="text" id="userName" placeholder="İsmin">
+                    <button class="btn btn-primary" onclick="saveName()">💾 Kaydet</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title" style="margin-bottom: 15px;">🎯 Günlük Hedefler</h3>
+                <div class="input-group">
+                    <div style="flex: 1;">
+                        <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 5px;">Kalori</label>
+                        <input type="number" id="calorieGoal" value="2000">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 5px;">Protein (g)</label>
+                        <input type="number" id="proteinGoalInput" value="150">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div style="flex: 1;">
+                        <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 5px;">Karbonhidrat (g)</label>
+                        <input type="number" id="carbsGoalInput" value="200">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 5px;">Yağ (g)</label>
+                        <input type="number" id="fatGoalInput" value="65">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveMacroGoals()" style="width: 100%;">💾 Hedefleri Kaydet</button>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title" style="margin-bottom: 15px;">🔑 Claude API</h3>
+                <input type="password" id="apiKey" placeholder="sk-ant-api03-..." style="margin-bottom: 10px;">
+                <small style="color: var(--text-secondary); font-size: 12px;">console.anthropic.com → API Keys</small>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title" style="margin-bottom: 15px;">🧹 Depolama Yönetimi</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 14px;">
+                    Toplam kayıt: <strong id="totalEntries">0</strong><br>
+                    Fotoğraflı kayıt: <strong id="photoEntries">0</strong>
+                </p>
+                <button class="btn btn-secondary" onclick="clearOldPhotos()" style="width: 100%; margin-bottom: 10px;">
+                    📸 Eski Fotoğrafları Sil
+                </button>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-secondary" onclick="clearAllData()" style="width: 100%; background: var(--danger); color: white; border: none;">
+                    🗑️ Tüm Verileri Sil
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+              .then(reg => console.log('✅ Service Worker kayıtlı', reg))
+              .catch(err => console.log('❌ Service Worker hatası', err));
+          });
+        }
+
+        // All JavaScript code from previous version...
+        // (Tüm JavaScript kodunu buraya ekle - önceki versiyondan)
+        
+        let selectedImage = null;
+        let selectedMeal = 'breakfast';
+        let allData = [];
+        let savedMeals = [];
+        let userName = '';
+        let isPremium = false;
+        let currentTheme = 'light';
+        let isRecording = false;
+        let recognition = null;
+        let transcript = '';
+        let macroGoals = {
+            calories: 2000,
+            protein: 150,
+            carbs: 200,
+            fat: 65
+        };
+
+        loadData();
+        updateUI();
+        initVoiceRecognition();
+
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'tr-TR';
+                
+                recognition.onresult = (event) => {
+                    transcript = event.results[0][0].transcript;
+                    document.getElementById('voiceTranscript').textContent = transcript;
+                    document.getElementById('voiceAnalyzeBtn').disabled = false;
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Voice error:', event.error);
+                    stopRecording();
+                };
+
+                recognition.onend = () => {
+                    stopRecording();
+                };
+            }
+        }
+
+        function toggleVoiceRecording() {
+            if (!recognition) {
+                alert('⚠️ Tarayıcın sesli komut desteklemiyor!');
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                transcript = '';
+                document.getElementById('voiceTranscript').textContent = 'Dinliyorum...';
+                recognition.start();
+                isRecording = true;
+                document.getElementById('voiceBtn').classList.add('recording');
+            }
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+        }
+
+        // Continue with all other JavaScript functions...
+        // (Önceki tüm fonksiyonları buraya ekle)
+        
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('themeToggle').textContent = currentTheme === 'light' ? '🌙' : '☀️';
+            localStorage.setItem('theme', currentTheme);
+        }
+
+        function saveName() {
+            userName = document.getElementById('userName').value.trim();
+            if (userName) {
+                localStorage.setItem('userName', userName);
+                updateWelcome();
+                alert('✅ İsim kaydedildi!');
+            }
+        }
+
+        function updateWelcome() {
+            const hour = new Date().getHours();
+            let greeting = 'Merhaba';
+            if (hour < 12) greeting = 'Günaydın';
+            else if (hour < 18) greeting = 'İyi günler';
+            else greeting = 'İyi akşamlar';
+
+            document.getElementById('welcomeText').textContent = userName ? `${greeting} ${userName}! 👋` : `${greeting}! 👋`;
+        }
+
+        function saveMacroGoals() {
+            macroGoals.calories = parseInt(document.getElementById('calorieGoal').value);
+            macroGoals.protein = parseInt(document.getElementById('proteinGoalInput').value);
+            macroGoals.carbs = parseInt(document.getElementById('carbsGoalInput').value);
+            macroGoals.fat = parseInt(document.getElementById('fatGoalInput').value);
+            localStorage.setItem('macroGoals', JSON.stringify(macroGoals));
+            updateMacroDashboard();
+            alert('✅ Hedefler kaydedildi!');
+        }
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, (compressed) => {
+                    selectedImage = compressed;
+                    document.getElementById('preview').innerHTML = `<img src="${selectedImage}" style="max-width: 100%; max-height: 300px; border-radius: 16px;">`;
+                    analyzeBtn.disabled = false;
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function compressImage(base64Str, callback) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                const maxSize = 800;
+                if (width > height && width > maxSize) {
+                    height *= maxSize / width;
+                    width = maxSize;
+                } else if (height > maxSize) {
+                    width *= maxSize / height;
+                    height = maxSize;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                const compressed = canvas.toDataURL('image/jpeg', 0.7);
+                callback(compressed);
+            };
+            img.src = base64Str;
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('calorieData');
+            if (saved) allData = JSON.parse(saved);
+
+            const savedMealsData = localStorage.getItem('savedMeals');
+            if (savedMealsData) savedMeals = JSON.parse(savedMealsData);
+
+            const savedName = localStorage.getItem('userName');
+            if (savedName) {
+                userName = savedName;
+                document.getElementById('userName').value = userName;
+                updateWelcome();
+            }
+
+            const savedMacros = localStorage.getItem('macroGoals');
+            if (savedMacros) {
+                macroGoals = JSON.parse(savedMacros);
+                document.getElementById('calorieGoal').value = macroGoals.calories;
+                document.getElementById('proteinGoalInput').value = macroGoals.protein;
+                document.getElementById('carbsGoalInput').value = macroGoals.carbs;
+                document.getElementById('fatGoalInput').value = macroGoals.fat;
+            }
+
+            const savedApiKey = localStorage.getItem('apiKey');
+            if (savedApiKey) document.getElementById('apiKey').value = savedApiKey;
+
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                currentTheme = savedTheme;
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                document.getElementById('themeToggle').textContent = currentTheme === 'light' ? '🌙' : '☀️';
+            }
+        }
+
+        document.getElementById('apiKey').addEventListener('change', (e) => {
+            localStorage.setItem('apiKey', e.target.value);
+        });
+
+        function updateUI() {
+            updateMacroDashboard();
+            updateHistory();
+            updateSavedMeals();
+            updateGallery();
+            updateStorageStats();
+        }
+
+        function updateMacroDashboard() {
+            const today = new Date().toDateString();
+            const todayData = allData.filter(item => new Date(item.date).toDateString() === today);
+
+            let totalCal = 0, totalProtein = 0, totalCarbs = 0, totalFat = 0;
+
+            todayData.forEach(item => {
+                totalCal += item.calories;
+                totalProtein += item.protein;
+                totalCarbs += item.carbs;
+                totalFat += item.fat;
+            });
+
+            document.getElementById('todayCalories').textContent = totalCal;
+            document.getElementById('todayProtein').textContent = totalProtein + 'g';
+            document.getElementById('todayCarbs').textContent = totalCarbs + 'g';
+            document.getElementById('todayFat').textContent = totalFat + 'g';
+
+            document.getElementById('calGoal').textContent = macroGoals.calories;
+            document.getElementById('proteinGoal').textContent = macroGoals.protein;
+            document.getElementById('carbsGoal').textContent = macroGoals.carbs;
+            document.getElementById('fatGoal').textContent = macroGoals.fat;
+
+            const calPercent = Math.min((totalCal / macroGoals.calories) * 100, 100);
+            const proteinPercent = Math.min((totalProtein / macroGoals.protein) * 100, 100);
+            const carbsPercent = Math.min((totalCarbs / macroGoals.carbs) * 100, 100);
+            const fatPercent = Math.min((totalFat / macroGoals.fat) * 100, 100);
+
+            document.getElementById('calProgress').style.width = calPercent + '%';
+            document.getElementById('proteinProgress').style.width = proteinPercent + '%';
+            document.getElementById('carbsProgress').style.width = carbsPercent + '%';
+            document.getElementById('fatProgress').style.width = fatPercent + '%';
+
+            document.getElementById('calPercent').textContent = Math.round(calPercent) + '%';
+            document.getElementById('proteinPercent').textContent = Math.round(proteinPercent) + '%';
+            document.getElementById('carbsPercent').textContent = Math.round(carbsPercent) + '%';
+            document.getElementById('fatPercent').textContent = Math.round(fatPercent) + '%';
+        }
+
+        function updateHistory() {
+            const today = new Date().toDateString();
+            const todayData = allData.filter(item => new Date(item.date).toDateString() === today);
+
+            const mealTypes = {
+                breakfast: { name: 'Kahvaltı', icon: '🌅', items: [] },
+                lunch: { name: 'Öğle', icon: '☀️', items: [] },
+                dinner: { name: 'Akşam', icon: '🌙', items: [] },
+                snack: { name: 'Atıştırma', icon: '🍪', items: [] }
+            };
+
+            todayData.forEach(item => {
+                mealTypes[item.meal].items.push(item);
+            });
+
+            let html = '';
+
+            Object.entries(mealTypes).forEach(([key, meal]) => {
+                if (meal.items.length > 0) {
+                    const mealTotal = meal.items.reduce((sum, item) => sum + item.calories, 0);
+
+                    html += `<div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">${meal.icon} ${meal.name}</h3>
+                            <span style="font-size: 20px; font-weight: 700; color: var(--primary);">${mealTotal} kcal</span>
+                        </div>`;
+
+                    meal.items.forEach(item => {
+                        html += `
+                            <div class="history-item">
+                                ${item.image ? 
+                                    `<img src="${item.image}" class="history-item-image">` : 
+                                    `<div class="history-item-placeholder">🍽️</div>`
+                                }
+                                <div class="history-item-content">
+                                    <div class="history-item-title">${item.foodName}</div>
+                                    <div class="history-item-macros">
+                                        <span class="macro-badge">🥩 ${item.protein}g</span>
+                                        <span class="macro-badge">🍞 ${item.carbs}g</span>
+                                        <span class="macro-badge">🥑 ${item.fat}g</span>
+                                    </div>
+                                    <div class="history-item-score">⭐ ${item.score}/10</div>
+                                </div>
+                                <div class="history-item-calories">${item.calories}</div>
+                                <div class="action-buttons">
+                                    <button class="action-btn btn-delete" onclick="deleteEntry(${item.id})">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                }
+            });
+
+            if (html === '') {
+                html = `<div class="empty-state">
+                    <div class="empty-icon">🍽️</div>
+                    <h3>Henüz yemek eklemedin</h3>
+                </div>`;
+            }
+
+            document.getElementById('todayMeals').innerHTML = html;
+        }
+
+        function updateSavedMeals() {
+            const grid = document.getElementById('savedMealsGrid');
+
+            if (savedMeals.length === 0) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-icon">📝</div>
+                    <h3>Henüz kayıtlı yemek yok</h3>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = savedMeals.map((meal, i) => `
+                <div class="saved-meal-card" onclick="addSavedMeal(savedMeals[${i}])">
+                    <div class="saved-meal-icon">⭐</div>
+                    <div class="saved-meal-name">${meal.foodName}</div>
+                    <div class="saved-meal-info">
+                        🔥 ${meal.calories} kcal
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateGallery() {
+            const grid = document.getElementById('galleryGrid');
+            const withImages = allData.filter(item => item.image);
+
+            if (withImages.length === 0) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-icon">📸</div>
+                    <h3>Henüz fotoğraf yok</h3>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = withImages.map(item => `
+                <div class="gallery-item">
+                    <img src="${item.image}">
+                    <div class="gallery-overlay">
+                        ${item.foodName}<br>
+                        🔥 ${item.calories} kcal
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStorageStats() {
+            const totalEntries = allData.length;
+            const photoEntries = allData.filter(item => item.image).length;
+            
+            const totalEl = document.getElementById('totalEntries');
+            const photoEl = document.getElementById('photoEntries');
+            
+            if (totalEl) totalEl.textContent = totalEntries;
+            if (photoEl) photoEl.textContent = photoEntries;
+        }
+
+        function deleteEntry(id) {
+            if (confirm('Silmek istediğine emin misin?')) {
+                allData = allData.filter(item => item.id !== id);
+                try {
+                    localStorage.setItem('calorieData', JSON.stringify(allData));
+                } catch (e) {
+                    console.error('Delete error:', e);
+                }
+                updateUI();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ TÜM VERİLERİ SİLMEK EMİN MİSİN?')) {
+                localStorage.clear();
+                allData = [];
+                savedMeals = [];
+                updateUI();
+                alert('✅ Silindi!');
+            }
+        }
+
+        function clearOldPhotos() {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            let removed = 0;
+            allData.forEach(item => {
+                if (item.image && new Date(item.date) < thirtyDaysAgo) {
+                    item.image = null;
+                    removed++;
+                }
+            });
+            
+            localStorage.setItem('calorieData', JSON.stringify(allData));
+            updateUI();
+            alert(`✅ ${removed} eski fotoğraf silindi!`);
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            const tabs = document.querySelectorAll('.tab');
+            const tabNames = ['add', 'voice', 'saved', 'history', 'gallery', 'settings'];
+            const index = tabNames.indexOf(tab);
+            if (index !== -1) {
+                tabs[index].classList.add('active');
+            }
+            
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        document.querySelectorAll('.meal-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.meal-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMeal = this.dataset.meal;
+            });
+        });
+
+        function addSavedMeal(meal) {
+            const entry = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                meal: selectedMeal,
+                foodName: meal.foodName,
+                calories: meal.calories,
+                protein: meal.protein,
+                carbs: meal.carbs,
+                fat: meal.fat,
+                score: meal.score,
+                comment: 'Kayıtlı yemek',
+                purpose: 'Kayıtlı yemeklerden',
+                detail: 'Kayıtlı',
+                image: null
+            };
+
+            allData.push(entry);
+            localStorage.setItem('calorieData', JSON.stringify(allData));
+            updateUI();
+            alert('✅ Eklendi!');
+        }
+    </script>
+</body>
+</html>
