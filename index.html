@@ -5,19 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🍎 Kalori Pro Premium</title>
     <meta name="theme-color" content="#8B5CF6">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="logo-192.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🍎</text></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-:root{
-  --primary:#8B5CF6;--secondary:#EC4899;--accent:#10B981;--danger:#EF4444;--warning:#F59E0B;
-  --bg:#F9FAFB;--card:#FFF;--text:#1F2937;--text-sec:#6B7280;--border:#E5E7EB;
-}
-[data-theme="dark"]{
-  --primary:#A78BFA;--bg:#1F2937;--card:#374151;--text:#F9FAFB;--text-sec:#D1D5DB;--border:#4B5563;
-}
+:root{--primary:#8B5CF6;--secondary:#EC4899;--accent:#10B981;--danger:#EF4444;--warning:#F59E0B;--bg:#F9FAFB;--card:#FFF;--text:#1F2937;--text-sec:#6B7280;--border:#E5E7EB}
+[data-theme="dark"]{--primary:#A78BFA;--bg:#1F2937;--card:#374151;--text:#F9FAFB;--text-sec:#D1D5DB;--border:#4B5563}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding-bottom:80px;transition:background 0.3s,color 0.3s}
 .premium-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;padding:6px 12px;border-radius:50px;font-size:11px;font-weight:700;text-transform:uppercase}
@@ -156,7 +149,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <div class="container">
-  <!-- Ana Sayfa -->
   <div id="homeTab" class="tab active">
     <div class="calorie-summary">
       <div class="streak">🔥 <span id="streak">0</span> günlük seri!</div>
@@ -230,7 +222,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="todayMeals"></div>
   </div>
 
-  <!-- Su Takibi -->
   <div id="waterTab" class="tab">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
@@ -239,21 +230,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="water-glasses" id="waterGlasses"></div>
       <div style="text-align:center;font-size:14px;color:var(--text-sec);margin:20px 0">
-        Hedef: <span style="font-weight:600;color:#3B82F6" id="waterGoal">2.5</span>L (her bardak ~250ml)
-      </div>
-      <div style="background:linear-gradient(135deg,#DBEAFE,#BFDBFE);padding:18px;border-radius:16px">
-        <div style="font-weight:700;color:#1E40AF;margin-bottom:10px">💡 Su İçme İpuçları</div>
-        <div style="color:#1E3A8A;font-size:14px;line-height:1.6">
-          • Güne 1-2 bardak suyla başlayın<br>
-          • Her öğünden önce su için<br>
-          • Telefonunuza hatırlatıcı kurun<br>
-          • Su şişenizi yanınızda taşıyın
-        </div>
+        Hedef: <span style="font-weight:600;color:#3B82F6" id="waterGoal">2.5</span>L
       </div>
     </div>
   </div>
 
-  <!-- Ağırlık Takibi -->
   <div id="weightTab" class="tab">
     <div class="card">
       <h2 class="card-title">⚖️ Ağırlık Takibi</h2>
@@ -278,72 +259,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div class="card">
       <h2 class="card-title">💪 Vücut Ölçüleri</h2>
-      <div class="input-group" style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Bel (cm)</label>
-        <input type="number" id="waist" class="input" placeholder="Bel çevresi">
-      </div>
-      <div class="input-group" style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Göğüs (cm)</label>
-        <input type="number" id="chest" class="input" placeholder="Göğüs çevresi">
-      </div>
-      <div class="input-group" style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Kol (cm)</label>
-        <input type="number" id="arm" class="input" placeholder="Kol çevresi">
-      </div>
+      <input type="number" id="waist" class="input" placeholder="Bel (cm)" style="margin-bottom:15px">
+      <input type="number" id="chest" class="input" placeholder="Göğüs (cm)" style="margin-bottom:15px">
+      <input type="number" id="arm" class="input" placeholder="Kol (cm)" style="margin-bottom:15px">
       <button class="btn btn-success" onclick="saveMeasurements()">💾 Kaydet</button>
     </div>
   </div>
 
-  <!-- Uyku Takibi -->
-  <div id="sleepTab" class="tab">
-    <div class="card">
-      <h2 class="card-title">😴 Uyku Takibi</h2>
-      <div class="input-group" style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Uyku Süresi (saat)</label>
-        <input type="number" id="sleepHours" class="input" placeholder="7.5" step="0.5">
-      </div>
-      <div class="input-group" style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Kalite (1-10)</label>
-        <input type="number" id="sleepQuality" class="input" placeholder="8" min="1" max="10">
-      </div>
-      <button class="btn btn-primary" onclick="addSleep()">💾 Kaydet</button>
-      <div class="chart-container">
-        <canvas id="sleepChart"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <!-- Aktivite/Adım -->
-  <div id="activityTab" class="tab">
-    <div class="card">
-      <h2 class="card-title">🚶 Adım Sayacı</h2>
-      <div class="stat-grid">
-        <div class="stat">
-          <div class="stat-val" id="todaySteps">0</div>
-          <div class="stat-label">Bugün</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">10,000</div>
-          <div class="stat-label">Hedef</div>
-        </div>
-      </div>
-      <div class="weight-entry">
-        <input type="number" id="stepsInput" class="input" placeholder="Adım sayısı">
-        <button class="btn btn-primary" onclick="addSteps()">Ekle</button>
-      </div>
-      <div style="background:linear-gradient(135deg,#FEF3C7,#FDE68A);padding:18px;border-radius:16px;margin-top:20px">
-        <div style="font-weight:700;color:#92400E;margin-bottom:10px">🏃 Aktivite İpuçları</div>
-        <div style="color:#92400E;font-size:14px">
-          • Merdiven kullanın<br>
-          • Öğle molasında yürüyüş yapın<br>
-          • Park yerine uzağa park edin<br>
-          • Telefonda konuşurken yürüyün
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Yemek Ekle -->
   <div id="addTab" class="tab">
     <div class="card">
       <h2 class="card-title">📸 Yemek Ekle</h2>
@@ -422,17 +344,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="ai-head"><span>💡</span><span>AI Uzman Yorumu</span></div>
           <div style="color:#1E3A8A;font-size:14px;line-height:1.7" id="resComment">-</div>
         </div>
-        <div style="margin-bottom:15px">
-          <label style="display:block;font-size:14px;font-weight:600;margin-bottom:8px">📝 Notlarınız</label>
-          <textarea id="foodNotes" class="input" style="min-height:80px;resize:vertical" placeholder="Bu yemeği nasıl buldunuz?"></textarea>
-        </div>
-        <button class="btn btn-success" id="saveFood">✅ Kaydet ve Günlüğe Ekle</button>
+        <textarea id="foodNotes" class="input" style="min-height:80px;margin-bottom:15px" placeholder="📝 Notlarınız"></textarea>
+        <button class="btn btn-success" id="saveFood">✅ Kaydet</button>
         <button class="btn" style="background:var(--bg);color:var(--text);margin-top:10px" onclick="addToFavorites()">⭐ Favorilere Ekle</button>
       </div>
     </div>
   </div>
 
-  <!-- Favoriler -->
   <div id="favoritesTab" class="tab">
     <div class="card">
       <h2 class="card-title">⭐ Favori Yemekler</h2>
@@ -440,24 +358,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- Tarifler -->
   <div id="recipesTab" class="tab">
     <div class="card">
       <h2 class="card-title">👨‍🍳 Sağlıklı Tarifler</h2>
-      <div style="margin-bottom:15px">
-        <input type="text" id="recipeSearch" class="input" placeholder="🔍 Tarif ara..." oninput="filterRecipes()">
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:15px;overflow-x:auto">
-        <div class="diet-tag" onclick="filterDiet('all')">Tümü</div>
-        <div class="diet-tag" onclick="filterDiet('vegan')">Vegan</div>
-        <div class="diet-tag" onclick="filterDiet('keto')">Keto</div>
-        <div class="diet-tag" onclick="filterDiet('protein')">Yüksek Protein</div>
-      </div>
+      <input type="text" id="recipeSearch" class="input" placeholder="🔍 Tarif ara..." oninput="filterRecipes()" style="margin-bottom:15px">
       <div class="recipe-grid" id="recipeGrid"></div>
     </div>
   </div>
 
-  <!-- İstatistikler -->
   <div id="statsTab" class="tab">
     <div class="card">
       <h2 class="card-title">📊 Haftalık İlerleme</h2>
@@ -470,7 +378,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center" id="badges"></div>
     </div>
     <div class="card">
-      <h2 class="card-title">📈 Genel İstatistikler</h2>
+      <h2 class="card-title">📈 İstatistikler</h2>
       <div class="stat-grid">
         <div class="stat">
           <div class="stat-val" id="totalEntries">0</div>
@@ -489,11 +397,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="stat-label">En Çok Yenen</div>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="exportPDF()">📄 PDF Rapor İndir</button>
     </div>
   </div>
 
-  <!-- Ayarlar -->
   <div id="settingsTab" class="tab">
     <div class="card">
       <h2 class="card-title">👤 Profil</h2>
@@ -502,39 +408,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button style="background:var(--bg);border:none;padding:10px 20px;border-radius:50px;font-weight:600;cursor:pointer" onclick="document.getElementById('profilePicInput').click()">📸 Fotoğraf Değiştir</button>
         <input type="file" id="profilePicInput" class="hidden" accept="image/*">
       </div>
-      <div style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">İsim</label>
-        <input type="text" id="userName" class="input" placeholder="İsminiz">
-      </div>
+      <input type="text" id="userName" class="input" placeholder="İsminiz" style="margin-bottom:15px">
       <button class="btn btn-primary" onclick="saveProfile()">💾 Profili Kaydet</button>
     </div>
 
     <div class="card">
-      <h2 class="card-title">🎯 Günlük Hedefler</h2>
-      <div style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Kalori Hedefi</label>
-        <input type="number" id="goalCal" class="input" value="2000">
-      </div>
-      <div style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Protein (g)</label>
-        <input type="number" id="goalProtein" class="input" value="150">
-      </div>
-      <div style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Karbonhidrat (g)</label>
-        <input type="number" id="goalCarbs" class="input" value="200">
-      </div>
-      <div style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Yağ (g)</label>
-        <input type="number" id="goalFat" class="input" value="60">
-      </div>
-      <div style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Su (L)</label>
-        <input type="number" id="goalWater" class="input" value="2.5" step="0.1">
-      </div>
-      <div style="margin-bottom:15px">
-        <label style="display:block;font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:8px">Kilo Hedefi (kg)</label>
-        <input type="number" id="goalWeight" class="input" placeholder="70" step="0.1">
-      </div>
+      <h2 class="card-title">🎯 Hedefler</h2>
+      <input type="number" id="goalCal" class="input" placeholder="Kalori" value="2000" style="margin-bottom:15px">
+      <input type="number" id="goalProtein" class="input" placeholder="Protein (g)" value="150" style="margin-bottom:15px">
+      <input type="number" id="goalCarbs" class="input" placeholder="Karb (g)" value="200" style="margin-bottom:15px">
+      <input type="number" id="goalFat" class="input" placeholder="Yağ (g)" value="60" style="margin-bottom:15px">
+      <input type="number" id="goalWater" class="input" placeholder="Su (L)" value="2.5" step="0.1" style="margin-bottom:15px">
       <button class="btn btn-success" onclick="saveGoals()">💾 Hedefleri Kaydet</button>
     </div>
 
@@ -542,8 +426,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <h2 class="card-title">⏰ Hatırlatıcılar</h2>
       <div class="reminder-item">
         <div>
-          <div style="font-weight:600">💧 Su İçme Hatırlatıcısı</div>
-          <div style="font-size:12px;color:var(--text-sec)">Her 2 saatte bir</div>
+          <div style="font-weight:600">💧 Su Hatırlatıcı</div>
+          <div style="font-size:12px;color:var(--text-sec)">Her 2 saatte</div>
         </div>
         <div class="toggle" id="waterReminder" onclick="toggleReminder('water')">
           <div class="toggle-btn"></div>
@@ -551,8 +435,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="reminder-item">
         <div>
-          <div style="font-weight:600">🍽️ Öğün Hatırlatıcısı</div>
-          <div style="font-size:12px;color:var(--text-sec)">Öğün saatlerinde</div>
+          <div style="font-weight:600">🍽️ Öğün Hatırlatıcı</div>
+          <div style="font-size:12px;color:var(--text-sec)">Öğün saatleri</div>
         </div>
         <div class="toggle" id="mealReminder" onclick="toggleReminder('meal')">
           <div class="toggle-btn"></div>
@@ -565,7 +449,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="reminder-item">
         <div>
           <div style="font-weight:600">🌙 Karanlık Mod</div>
-          <div style="font-size:12px;color:var(--text-sec)">Göz dostu tema</div>
         </div>
         <div class="toggle" id="darkToggle" onclick="toggleDarkMode()">
           <div class="toggle-btn"></div>
@@ -580,7 +463,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- Recipe Modal -->
 <div id="recipeModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -591,7 +473,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- Bottom Nav -->
 <div class="bottom-nav">
   <button class="nav-item active" onclick="switchTab('home')">
     <div class="nav-icon">🏠</div>
@@ -617,27 +498,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 const API='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';
-let meal='breakfast',photo=null,data=[],water=[],weight=[],sleep=[],steps=[],favs=[],reminders={water:false,meal:false},goals={calories:2000,protein:150,carbs:200,fat:60,water:2.5,weight:70},profile={name:'',photo:null},measurements={waist:0,chest:0,arm:0};
+let meal='breakfast',photo=null,data=[],water=[],weight=[],favs=[],reminders={water:false,meal:false},goals={calories:2000,protein:150,carbs:200,fat:60,water:2.5},profile={name:'',photo:null},measurements={waist:0,chest:0,arm:0};
 const badges=[
-{id:'first',name:'İlk Adım',icon:'🎯',desc:'İlk yemeğini ekledin',req:()=>data.length>=1},
-{id:'week',name:'1 Hafta',icon:'📅',desc:'7 gün kayıt',req:()=>getStreak()>=7},
-{id:'month',name:'1 Ay',icon:'🗓️',desc:'30 gün kayıt',req:()=>getStreak()>=30},
-{id:'water',name:'Su Şampiyonu',icon:'💧',desc:'10 gün tam su hedefi',req:()=>false},
+{id:'first',name:'İlk Adım',icon:'🎯',desc:'İlk yemek',req:()=>data.length>=1},
+{id:'week',name:'1 Hafta',icon:'📅',desc:'7 günlük seri',req:()=>getStreak()>=7},
+{id:'month',name:'1 Ay',icon:'🗓️',desc:'30 günlük seri',req:()=>getStreak()>=30},
+{id:'water',name:'Su Şampiyonu',icon:'💧',desc:'Günlük su hedefi',req:()=>false},
 {id:'healthy',name:'Sağlık Uzmanı',icon:'🥗',desc:'50 sağlıklı yemek',req:()=>data.filter(x=>x.score>=7).length>=50}
 ];
 const recipes=[
-{name:"Kinoa Salatası",emoji:"🥗",cal:320,protein:12,carbs:45,fat:10,diet:['vegan'],ing:["Kinoa","Domates","Salatalık"],ins:"Kinoayı haşlayın, sebzeleri ekleyin."},
-{name:"Izgara Tavuk",emoji:"🍗",cal:165,protein:31,carbs:0,fat:3.6,diet:['protein','keto'],ing:["Tavuk","Baharat"],ins:"Marine edip ızgarada pişirin."},
-{name:"Yulaf Lapası",emoji:"🥣",cal:150,protein:5,carbs:27,fat:3,diet:['vegan'],ing:["Yulaf","Süt","Meyve"],ins:"Pişirin, meyve ekleyin."},
-{name:"Avokado Toast",emoji:"🥑",cal:280,protein:8,carbs:30,fat:15,diet:['vegan'],ing:["Ekmek","Avokado"],ins:"Kızartın, avokado sürün."},
-{name:"Somon Fileto",emoji:"🐟",cal:367,protein:39,carbs:0,fat:22,diet:['protein','keto'],ing:["Somon","Limon"],ins:"Fırında pişirin."}
+{name:"Kinoa Salatası",emoji:"🥗",cal:320,protein:12,carbs:45,fat:10,ing:["Kinoa","Domates"],ins:"Pişirin."},
+{name:"Izgara Tavuk",emoji:"🍗",cal:165,protein:31,carbs:0,fat:3.6,ing:["Tavuk"],ins:"Izgara yapın."},
+{name:"Yulaf Lapası",emoji:"🥣",cal:150,protein:5,carbs:27,fat:3,ing:["Yulaf"],ins:"Pişirin."},
+{name:"Avokado Toast",emoji:"🥑",cal:280,protein:8,carbs:30,fat:15,ing:["Ekmek","Avokado"],ins:"Kızartın."},
+{name:"Somon",emoji:"🐟",cal:367,protein:39,carbs:0,fat:22,ing:["Somon"],ins:"Fırınlayın."}
 ];
-for(let i=0;i<95;i++)recipes.push({name:`Tarif ${i+6}`,emoji:["🥗","🍲","🍳","🥘","🍜"][i%5],cal:200+Math.random()*300|0,protein:10+Math.random()*25|0,carbs:20+Math.random()*50|0,fat:5+Math.random()*20|0,diet:['vegan','keto','protein'][i%3],ing:["Malzeme 1","Malzeme 2"],ins:"Pişirin."});
+for(let i=0;i<95;i++)recipes.push({name:`Tarif ${i+6}`,emoji:["🥗","🍲","🍳"][i%3],cal:200+Math.random()*300|0,protein:10+Math.random()*25|0,carbs:20+Math.random()*50|0,fat:5+Math.random()*20|0,ing:["Malzeme"],ins:"Pişirin."});
 
-let charts={week:null,weight:null,sleep:null};
+let charts={week:null,weight:null};
 
 document.addEventListener('DOMContentLoaded',()=>{
-  load();updateDate();initUpload();initWater();initProfile();updateUI();initCharts();loadRecipes();loadFavorites();loadBadges();
+  load();updateDate();initUpload();initWater();initProfile();updateUI();
+  setTimeout(initCharts,100);
+  loadRecipes();loadFavorites();loadBadges();
   if(localStorage.getItem('darkMode')==='true')toggleDarkMode();
 });
 
@@ -646,19 +529,19 @@ function load(){
     data=JSON.parse(localStorage.getItem('calorieData')||'[]');
     water=JSON.parse(localStorage.getItem('waterData')||'[]');
     weight=JSON.parse(localStorage.getItem('weightData')||'[]');
-    sleep=JSON.parse(localStorage.getItem('sleepData')||'[]');
-    steps=JSON.parse(localStorage.getItem('stepsData')||'[]');
     favs=JSON.parse(localStorage.getItem('favorites')||'[]');
     reminders=JSON.parse(localStorage.getItem('reminders')||'{}');
-    goals=JSON.parse(localStorage.getItem('goals')||'{"calories":2000,"protein":150,"carbs":200,"fat":60,"water":2.5,"weight":70}');
-    profile=JSON.parse(localStorage.getItem('profile')||'{"name":"","photo":null}');
-    measurements=JSON.parse(localStorage.getItem('measurements')||'{"waist":0,"chest":0,"arm":0}');
+    const g=JSON.parse(localStorage.getItem('goals')||'null');
+    if(g)goals=g;
+    const p=JSON.parse(localStorage.getItem('profile')||'null');
+    if(p)profile=p;
+    const m=JSON.parse(localStorage.getItem('measurements')||'null');
+    if(m)measurements=m;
     document.getElementById('goalCal').value=goals.calories;
     document.getElementById('goalProtein').value=goals.protein;
     document.getElementById('goalCarbs').value=goals.carbs;
     document.getElementById('goalFat').value=goals.fat;
     document.getElementById('goalWater').value=goals.water;
-    document.getElementById('goalWeight').value=goals.weight;
     document.getElementById('userName').value=profile.name;
     if(profile.photo)document.getElementById('profilePic').src=profile.photo;
     document.getElementById('waist').value=measurements.waist;
@@ -669,9 +552,7 @@ function load(){
   }catch(e){console.error(e)}
 }
 
-function save(key,val){
-  localStorage.setItem(key,JSON.stringify(val));
-}
+function save(key,val){localStorage.setItem(key,JSON.stringify(val))}
 
 function updateDate(){
   document.getElementById('date').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});
@@ -692,8 +573,11 @@ function initWater(){
 function toggleWater(i){
   const t=new Date().toDateString();
   const w=water.filter(x=>new Date(x.date).toDateString()===t);
-  if(w.length>i)water=water.filter((x,idx)=>!(new Date(x.date).toDateString()===t&&idx===water.findIndex(y=>new Date(y.date).toDateString()===t)+i));
-  else water.push({date:new Date().toISOString(),amount:0.25});
+  if(w.length>i){
+    water=water.filter((x,idx)=>!(new Date(x.date).toDateString()===t&&idx>=water.findIndex(y=>new Date(y.date).toDateString()===t)+i&&idx<water.findIndex(y=>new Date(y.date).toDateString()===t)+i+1));
+  }else{
+    water.push({date:new Date().toISOString(),amount:0.25});
+  }
   save('waterData',water);
   updateWater();
 }
@@ -723,7 +607,7 @@ function initProfile(){
 function saveProfile(){
   profile.name=document.getElementById('userName').value;
   save('profile',profile);
-  alert('✅ Profil kaydedildi!');
+  toast('✅ Profil kaydedildi!');
 }
 
 function initUpload(){
@@ -735,7 +619,7 @@ function initUpload(){
         photo=e.target.result;
         document.getElementById('previewImg').src=photo;
         document.getElementById('preview').classList.add('show');
-        document.getElementById('barcodeScanner').classList.remove('show');
+        document.getElementById('barcodeScanner').classList.add('hidden');
       };
       r.readAsDataURL(f);
     }
@@ -761,17 +645,17 @@ function startBarcode(){
       inputStream:{name:"Live",type:"LiveStream",target:document.querySelector('#scannerVideo')},
       decoder:{readers:["ean_reader","code_128_reader"]}
     },err=>{
-      if(err){alert('Kamera hatası');return;}
+      if(err){toast('❌ Kamera hatası');return;}
       Quagga.start();
     });
     Quagga.onDetected(d=>{
       stopBarcode();
-      const db={'8690632006857':{foodName:'Ülker Çikolata',calories:220,protein:3,carbs:25,fat:12,score:4,comment:'Tatlı ihtiyacınız için uygun ama fazla tüketmeyin.'}};
+      const db={'8690632006857':{foodName:'Ülker Çikolata',calories:220,protein:3,carbs:25,fat:12,score:4,comment:'Tatlı için uygun.'}};
       const p=db[d.codeResult.code];
       if(p)showResult(p);
-      else alert('⚠️ Barkod bulunamadı');
+      else toast('⚠️ Barkod bulunamadı');
     });
-  }else alert('Tarayıcı yüklenemedi');
+  }else toast('❌ Tarayıcı yüklenemedi');
 }
 
 function stopBarcode(){
@@ -800,7 +684,7 @@ async function analyze(){
           role:'user',
           content:[
             {type:'image',source:{type:'base64',media_type:'image/jpeg',data:img}},
-            {type:'text',text:'Bu yemek fotoğrafını analiz et ve JSON ver:\n{"foodName":"ad","calories":sayı,"protein":sayı,"carbs":sayı,"fat":sayı,"score":1-10,"comment":"detaylı Türkçe yorum"}\nSadece JSON ver.'}
+            {type:'text',text:'Bu yemek fotoğrafını analiz et ve JSON ver:\n{"foodName":"ad","calories":sayı,"protein":sayı,"carbs":sayı,"fat":sayı,"score":1-10,"comment":"Türkçe yorum"}\nSadece JSON.'}
           ]
         }]
       })
@@ -811,7 +695,7 @@ async function analyze(){
     if(!m)throw new Error('JSON bulunamadı');
     showResult(JSON.parse(m[0]));
   }catch(e){
-    alert('❌ Hata: '+e.message);
+    toast('❌ Hata: '+e.message);
     l.classList.remove('show');
   }finally{
     b.disabled=false;
@@ -826,7 +710,7 @@ function showResult(r){
   document.getElementById('resProtein').textContent=r.protein;
   document.getElementById('resCarbs').textContent=r.carbs;
   document.getElementById('resFat').textContent=r.fat;
-  document.getElementById('resComment').textContent=r.comment||'Güzel seçim!';
+  document.getElementById('resComment').textContent=r.comment||'Güzel!';
   window.cur={...r,foodName:r.foodName||r.name,image:photo};
   document.getElementById('result').classList.add('show');
 }
@@ -859,10 +743,10 @@ function addToFavorites(){
 function loadFavorites(){
   const g=document.getElementById('favGrid');
   if(!favs.length){
-    g.innerHTML='<div class="empty"><div class="empty-icon">⭐</div><div>Favori yemek yok</div></div>';
+    g.innerHTML='<div class="empty"><div class="empty-icon">⭐</div><div>Favori yok</div></div>';
     return;
   }
-  g.innerHTML=favs.map((f,i)=>`<div class="fav-card" onclick="addFavorite(${i})"><div style="font-size:36px;margin-bottom:10px">${f.image?'🍽️':'📝'}</div><div style="font-weight:700;margin-bottom:4px">${f.foodName}</div><div style="font-size:12px;color:var(--text-sec)">${f.calories} kcal</div></div>`).join('');
+  g.innerHTML=favs.map((f,i)=>`<div class="fav-card" onclick="addFavorite(${i})"><div style="font-size:36px;margin-bottom:10px">🍽️</div><div style="font-weight:700;margin-bottom:4px">${f.foodName}</div><div style="font-size:12px;color:var(--text-sec)">${f.calories} kcal</div></div>`).join('');
 }
 
 function addFavorite(i){
@@ -910,45 +794,12 @@ function saveMeasurements(){
   toast('✅ Ölçüler kaydedildi!');
 }
 
-function addSleep(){
-  const h=parseFloat(document.getElementById('sleepHours').value);
-  const q=parseInt(document.getElementById('sleepQuality').value);
-  if(!h||!q)return;
-  sleep.push({date:new Date().toISOString(),hours:h,quality:q});
-  save('sleepData',sleep);
-  document.getElementById('sleepHours').value='';
-  document.getElementById('sleepQuality').value='';
-  updateSleepChart();
-  toast('✅ Uyku kaydedildi!');
-}
-
-function addSteps(){
-  const s=parseInt(document.getElementById('stepsInput').value);
-  if(!s)return;
-  const t=new Date().toDateString();
-  const idx=steps.findIndex(x=>new Date(x.date).toDateString()===t);
-  if(idx>=0)steps[idx].value+=s;
-  else steps.push({date:new Date().toISOString(),value:s});
-  save('stepsData',steps);
-  document.getElementById('stepsInput').value='';
-  updateSteps();
-  toast('✅ Adım eklendi!');
-}
-
-function updateSteps(){
-  const t=new Date().toDateString();
-  const s=steps.find(x=>new Date(x.date).toDateString()===t);
-  document.getElementById('todaySteps').textContent=s?s.value:0;
-}
-
 function updateUI(){
   updateMacros();
   updateToday();
   updateStats();
   updateWater();
   updateWeight();
-  updateSteps();
-  updateWeekChart();
   loadBadges();
 }
 
@@ -1033,24 +884,25 @@ function updateStats(){
 }
 
 function initCharts(){
-  charts.week=new Chart(document.getElementById('weekChart'),{
+  const w=document.getElementById('weekChart');
+  const wt=document.getElementById('weightChart');
+  if(!w||!wt)return;
+  charts.week=new Chart(w,{
     type:'line',
     data:{labels:[],datasets:[{label:'Kalori',data:[],borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,0.1)',tension:0.4,fill:true}]},
     options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}
   });
-  charts.weight=new Chart(document.getElementById('weightChart'),{
+  charts.weight=new Chart(wt,{
     type:'line',
     data:{labels:[],datasets:[{label:'Kilo',data:[],borderColor:'#EC4899',backgroundColor:'rgba(236,72,153,0.1)',tension:0.4,fill:true}]},
     options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}
   });
-  charts.sleep=new Chart(document.getElementById('sleepChart'),{
-    type:'bar',
-    data:{labels:[],datasets:[{label:'Saat',data:[],backgroundColor:'#10B981'}]},
-    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}
-  });
+  updateWeekChart();
+  updateWeightChart();
 }
 
 function updateWeekChart(){
+  if(!charts.week)return;
   const d=[];
   for(let i=6;i>=0;i--){
     const dt=new Date();
@@ -1065,19 +917,12 @@ function updateWeekChart(){
 }
 
 function updateWeightChart(){
+  if(!charts.weight)return;
   const l=weight.slice(-30).map(x=>new Date(x.date).toLocaleDateString('tr-TR',{day:'numeric',month:'short'}));
   const v=weight.slice(-30).map(x=>x.value);
   charts.weight.data.labels=l;
   charts.weight.data.datasets[0].data=v;
   charts.weight.update();
-}
-
-function updateSleepChart(){
-  const l=sleep.slice(-7).map(x=>new Date(x.date).toLocaleDateString('tr-TR',{weekday:'short'}));
-  const v=sleep.slice(-7).map(x=>x.hours);
-  charts.sleep.data.labels=l;
-  charts.sleep.data.datasets[0].data=v;
-  charts.sleep.update();
 }
 
 function loadRecipes(){
@@ -1092,16 +937,10 @@ function filterRecipes(){
   g.innerHTML=filtered.map((r,i)=>`<div class="recipe-card" onclick="showRecipe(${recipes.indexOf(r)})"><div class="recipe-img">${r.emoji}</div><div class="recipe-info"><div style="font-size:14px;font-weight:700;margin-bottom:6px">${r.name}</div><div style="font-size:11px;color:var(--text-sec)">🔥 ${r.cal} kcal</div></div></div>`).join('');
 }
 
-function filterDiet(d){
-  const filtered=d==='all'?recipes:recipes.filter(r=>r.diet.includes(d));
-  const g=document.getElementById('recipeGrid');
-  g.innerHTML=filtered.map((r,i)=>`<div class="recipe-card" onclick="showRecipe(${recipes.indexOf(r)})"><div class="recipe-img">${r.emoji}</div><div class="recipe-info"><div style="font-size:14px;font-weight:700;margin-bottom:6px">${r.name}</div><div style="font-size:11px;color:var(--text-sec)">🔥 ${r.cal} kcal</div></div></div>`).join('');
-}
-
 function showRecipe(i){
   const r=recipes[i];
   document.getElementById('recipeTitle').textContent=r.name;
-  document.getElementById('recipeBody').innerHTML=`<div style="text-align:center;font-size:72px;margin-bottom:20px">${r.emoji}</div><h4 style="margin-bottom:10px">📊 Besin Değerleri</h4><div style="background:var(--bg);padding:15px;border-radius:12px;margin-bottom:20px"><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"><div>🔥 ${r.cal} kcal</div><div>🥩 ${r.protein}g</div><div>🍞 ${r.carbs}g</div><div>🥑 ${r.fat}g</div></div></div><h4 style="margin-bottom:10px">🛒 Malzemeler</h4><ul style="margin-bottom:20px">${r.ing.map(x=>`<li>${x}</li>`).join('')}</ul><h4 style="margin-bottom:10px">👨‍🍳 Hazırlanış</h4><p>${r.ins}</p>`;
+  document.getElementById('recipeBody').innerHTML=`<div style="text-align:center;font-size:72px;margin-bottom:20px">${r.emoji}</div><h4>📊 Besin Değerleri</h4><div style="background:var(--bg);padding:15px;border-radius:12px;margin:15px 0"><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"><div>🔥 ${r.cal} kcal</div><div>🥩 ${r.protein}g</div><div>🍞 ${r.carbs}g</div><div>🥑 ${r.fat}g</div></div></div><h4>🛒 Malzemeler</h4><ul style="margin:15px 0">${r.ing.map(x=>`<li>${x}</li>`).join('')}</ul><h4>👨‍🍳 Hazırlanış</h4><p style="margin-top:10px">${r.ins}</p>`;
   document.getElementById('recipeModal').classList.add('show');
 }
 
@@ -1120,8 +959,7 @@ function saveGoals(){
     protein:+document.getElementById('goalProtein').value,
     carbs:+document.getElementById('goalCarbs').value,
     fat:+document.getElementById('goalFat').value,
-    water:+document.getElementById('goalWater').value,
-    weight:+document.getElementById('goalWeight').value
+    water:+document.getElementById('goalWater').value
   };
   save('goals',goals);
   updateUI();
@@ -1138,14 +976,8 @@ function toggleReminder(t){
   reminders[t]=!reminders[t];
   document.getElementById(t+'Reminder').classList.toggle('on');
   save('reminders',reminders);
-  if(reminders[t]){
-    if(Notification.permission==='default')Notification.requestPermission();
-    toast(`✅ ${t==='water'?'Su':'Öğün'} hatırlatıcısı açıldı!`);
-  }
-}
-
-function exportPDF(){
-  toast('📄 PDF rapor hazırlanıyor...');
+  if(reminders[t]&&Notification.permission==='default')Notification.requestPermission();
+  toast(`✅ ${t==='water'?'Su':'Öğün'} hatırlatıcısı ${reminders[t]?'açıldı':'kapandı'}!`);
 }
 
 function clearAll(){
@@ -1161,10 +993,8 @@ function switchTab(t){
   document.getElementById(t+'Tab').classList.add('active');
   const m={home:0,water:1,add:2,weight:3,stats:4};
   if(m[t]!==undefined)document.querySelectorAll('.nav-item')[m[t]].classList.add('active');
-  if(t==='stats')updateWeekChart();
-  if(t==='weight')updateWeight();
-  if(t==='sleep')updateSleepChart();
-  if(t==='activity')updateSteps();
+  if(t==='stats'&&charts.week)updateWeekChart();
+  if(t==='weight'&&charts.weight){updateWeight();updateWeightChart();}
   if(t==='recipes')loadRecipes();
   if(t==='favorites')loadFavorites();
 }
@@ -1177,7 +1007,7 @@ function toast(msg){
   setTimeout(()=>t.remove(),3000);
 }
 
-console.log('🚀 Kalori Pro Premium Hazır!');
+console.log('🚀 Kalori Pro Premium v2.0 Hazır!');
 </script>
 </body>
 </html>
