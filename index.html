@@ -63,6 +63,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-success{background:linear-gradient(135deg,#10B981,#059669);color:white}
 .btn-danger{background:#FEE2E2;color:#DC2626}
 .btn:active{transform:scale(0.98)}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
 .loading{display:none;text-align:center;padding:40px}
 .loading.show{display:block}
 .spinner{width:60px;height:60px;margin:0 auto 20px;border:5px solid #F3F4F6;border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
@@ -132,6 +133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .chart-container{position:relative;height:250px;margin-top:20px}
 .diet-tag{display:inline-block;padding:6px 12px;background:var(--primary);color:white;border-radius:50px;font-size:12px;margin:4px}
 .section-title{font-size:20px;font-weight:700;margin:25px 0 15px}
+.progress-info{background:linear-gradient(135deg,#FEF3C7,#FDE68A);padding:12px;border-radius:12px;margin-top:15px;font-size:13px;color:#92400E;text-align:center}
     </style>
 </head>
 <body>
@@ -299,19 +301,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <input type="file" id="camera" class="hidden" accept="image/*" capture="environment">
       <input type="file" id="gallery" class="hidden" accept="image/*">
-      <div id="barcodeScanner" class="hidden">
-        <div style="position:relative;width:100%;height:300px;background:#000;border-radius:16px;overflow:hidden">
-          <video id="scannerVideo" style="width:100%;height:100%;object-fit:cover"></video>
-        </div>
-        <button class="btn btn-danger" style="margin-top:15px" onclick="stopBarcode()">❌ Durdur</button>
-      </div>
       <div class="preview" id="preview">
         <img id="previewImg" class="preview-img">
+        <div class="progress-info" id="progressInfo" style="display:none"></div>
         <button class="btn btn-primary" id="analyzeBtn">🤖 AI ile Analiz Et</button>
       </div>
       <div class="loading" id="loading">
         <div class="spinner"></div>
-        <div style="font-size:16px;color:var(--text-sec);font-weight:500">AI analiz ediyor...</div>
+        <div style="font-size:16px;color:var(--text-sec);font-weight:500" id="loadingText">AI analiz ediyor...</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-top:10px" id="loadingSubtext">Bu birkaç saniye sürebilir</div>
       </div>
       <div class="result" id="result">
         <div class="result-head">
@@ -498,7 +496,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 const API='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';
-let meal='breakfast',photo=null,data=[],water=[],weight=[],favs=[],reminders={water:false,meal:false},goals={calories:2000,protein:150,carbs:200,fat:60,water:2.5},profile={name:'',photo:null},measurements={waist:0,chest:0,arm:0};
+let meal='breakfast',photo=null,compressedPhoto=null,data=[],water=[],weight=[],favs=[],reminders={water:false,meal:false},goals={calories:2000,protein:150,carbs:200,fat:60,water:2.5},profile={name:'',photo:null},measurements={waist:0,chest:0,arm:0};
 const badges=[
 {id:'first',name:'İlk Adım',icon:'🎯',desc:'İlk yemek',req:()=>data.length>=1},
 {id:'week',name:'1 Hafta',icon:'📅',desc:'7 günlük seri',req:()=>getStreak()>=7},
@@ -594,12 +592,10 @@ function initProfile(){
   document.getElementById('profilePicInput').addEventListener('change',e=>{
     const f=e.target.files[0];
     if(f){
-      const r=new FileReader();
-      r.onload=e=>{
-        profile.photo=e.target.result;
-        document.getElementById('profilePic').src=e.target.result;
-      };
-      r.readAsDataURL(f);
+      compressImage(f,512,512).then(compressed=>{
+        profile.photo=compressed;
+        document.getElementById('profilePic').src=compressed;
+      });
     }
   });
 }
@@ -610,18 +606,78 @@ function saveProfile(){
   toast('✅ Profil kaydedildi!');
 }
 
+// FOTOĞRAF SIKIŠTIRMA FONKSİYONU - MOBİL İÇİN KRİTİK!
+function compressImage(file, maxWidth, maxHeight, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Boyut sınırlandır
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = width * ratio;
+          height = height * ratio;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // JPEG formatında compress et
+        const compressed = canvas.toDataURL('image/jpeg', quality);
+        
+        // Boyut kontrolü (max 1MB)
+        const sizeInMB = (compressed.length * 3/4) / (1024 * 1024);
+        if (sizeInMB > 1 && quality > 0.3) {
+          // Çok büyükse daha fazla compress et
+          compressImage(file, maxWidth, maxHeight, quality - 0.2).then(resolve).catch(reject);
+        } else {
+          resolve(compressed);
+        }
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function initUpload(){
   const h=e=>{
     const f=e.target.files[0];
     if(f){
-      const r=new FileReader();
-      r.onload=e=>{
-        photo=e.target.result;
-        document.getElementById('previewImg').src=photo;
+      const progressInfo = document.getElementById('progressInfo');
+      progressInfo.style.display = 'block';
+      progressInfo.textContent = '📸 Fotoğraf işleniyor...';
+      
+      // Compress et (800x800, 0.7 quality)
+      compressImage(f, 800, 800, 0.7).then(compressed => {
+        photo = compressed;
+        compressedPhoto = compressed;
+        
+        const sizeInKB = ((compressed.length * 3/4) / 1024).toFixed(0);
+        progressInfo.textContent = `✅ Hazır! (${sizeInKB} KB)`;
+        
+        document.getElementById('previewImg').src = compressed;
         document.getElementById('preview').classList.add('show');
-        document.getElementById('barcodeScanner').classList.add('hidden');
-      };
-      r.readAsDataURL(f);
+        
+        setTimeout(() => {
+          progressInfo.style.display = 'none';
+        }, 2000);
+      }).catch(err => {
+        console.error('Compress error:', err);
+        progressInfo.textContent = '❌ Hata oluştu, tekrar deneyin';
+        progressInfo.style.display = 'none';
+        toast('❌ Fotoğraf yüklenemedi');
+      });
     }
   };
   document.getElementById('camera').addEventListener('change',h);
@@ -637,81 +693,129 @@ function initUpload(){
 
 function startBarcode(){
   switchTab('add');
-  const s=document.getElementById('barcodeScanner');
-  s.classList.remove('hidden');
-  document.getElementById('preview').classList.remove('show');
-  if(typeof Quagga!=='undefined'){
-    Quagga.init({
-      inputStream:{name:"Live",type:"LiveStream",target:document.querySelector('#scannerVideo')},
-      decoder:{readers:["ean_reader","code_128_reader"]}
-    },err=>{
-      if(err){toast('❌ Kamera hatası');return;}
-      Quagga.start();
-    });
-    Quagga.onDetected(d=>{
-      stopBarcode();
-      const db={'8690632006857':{foodName:'Ülker Çikolata',calories:220,protein:3,carbs:25,fat:12,score:4,comment:'Tatlı için uygun.'}};
-      const p=db[d.codeResult.code];
-      if(p)showResult(p);
-      else toast('⚠️ Barkod bulunamadı');
-    });
-  }else toast('❌ Tarayıcı yüklenemedi');
+  toast('🔜 Barkod tarayıcı yakında!');
 }
 
-function stopBarcode(){
-  if(typeof Quagga!=='undefined')Quagga.stop();
-  document.getElementById('barcodeScanner').classList.add('hidden');
-}
+let retryCount = 0;
+const MAX_RETRIES = 3;
 
 async function analyze(){
-  if(!photo)return;
+  if(!compressedPhoto){
+    toast('❌ Lütfen fotoğraf seçin');
+    return;
+  }
+  
   const l=document.getElementById('loading');
   const r=document.getElementById('result');
   const b=document.getElementById('analyzeBtn');
+  
   l.classList.add('show');
   r.classList.remove('show');
   b.disabled=true;
+  
+  document.getElementById('loadingText').textContent = 'AI analiz ediyor...';
+  document.getElementById('loadingSubtext').textContent = 'Bu 10-30 saniye sürebilir';
+  
   try{
-    const img=photo.split(',')[1];
-    if(!img)throw new Error('Geçersiz fotoğraf');
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':API,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({
-        model:'claude-3-5-sonnet-20241022',
-        max_tokens:1024,
-        messages:[{
-          role:'user',
-          content:[
-            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:img}},
-            {type:'text',text:'Bu yemek fotoğrafını analiz et ve JSON ver:\n{"foodName":"ad","calories":sayı,"protein":sayı,"carbs":sayı,"fat":sayı,"score":1-10,"comment":"Türkçe yorum"}\nSadece JSON.'}
+    const img = compressedPhoto.split(',')[1];
+    if(!img) throw new Error('Geçersiz fotoğraf');
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 saniye timeout
+    
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
+            {type: 'image', source: {type: 'base64', media_type: 'image/jpeg', data: img}},
+            {type: 'text', text: 'Bu yemek fotoğrafını analiz et ve sadece JSON formatında yanıt ver:\n{"foodName":"yemek adı","calories":kalori_sayısı,"protein":protein_g,"carbs":karb_g,"fat":yağ_g,"score":1-10,"comment":"kısa Türkçe yorum"}\n\nHiç açıklama ekleme, sadece JSON.'}
           ]
         }]
-      })
+      }),
+      signal: controller.signal
     });
-    if(!res.ok)throw new Error(`API: ${res.status}`);
-    const d=await res.json();
-    const m=d.content[0].text.match(/\{[\s\S]*\}/);
-    if(!m)throw new Error('JSON bulunamadı');
-    showResult(JSON.parse(m[0]));
-  }catch(e){
-    toast('❌ Hata: '+e.message);
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`API Hatası (${res.status}): ${errorText}`);
+    }
+    
+    const d = await res.json();
+    
+    if (!d.content || !d.content[0] || !d.content[0].text) {
+      throw new Error('API yanıtı boş');
+    }
+    
+    const text = d.content[0].text;
+    const m = text.match(/\{[\s\S]*\}/);
+    
+    if (!m) {
+      throw new Error('JSON bulunamadı: ' + text.substring(0, 100));
+    }
+    
+    const parsed = JSON.parse(m[0]);
+    
+    // Validasyon
+    if (!parsed.foodName || !parsed.calories) {
+      throw new Error('Eksik veri');
+    }
+    
+    showResult(parsed);
+    retryCount = 0; // Reset retry
+    
+  } catch(e) {
+    console.error('Analiz hatası:', e);
+    
+    let errorMsg = '❌ Hata: ';
+    
+    if (e.name === 'AbortError') {
+      errorMsg += 'Zaman aşımı. İnternet bağlantınızı kontrol edin.';
+    } else if (e.message.includes('API Hatası')) {
+      errorMsg += 'Sunucu hatası. Lütfen tekrar deneyin.';
+    } else if (e.message.includes('JSON')) {
+      errorMsg += 'Analiz tamamlanamadı. Tekrar deneyin.';
+    } else {
+      errorMsg += e.message;
+    }
+    
+    // Retry logic
+    if (retryCount < MAX_RETRIES && !e.message.includes('Geçersiz')) {
+      retryCount++;
+      document.getElementById('loadingSubtext').textContent = `Tekrar deneniyor (${retryCount}/${MAX_RETRIES})...`;
+      setTimeout(() => analyze(), 2000);
+      return;
+    }
+    
+    toast(errorMsg);
     l.classList.remove('show');
-  }finally{
-    b.disabled=false;
+    retryCount = 0;
+    
+  } finally {
+    b.disabled = false;
   }
 }
 
 function showResult(r){
   document.getElementById('loading').classList.remove('show');
-  document.getElementById('resName').textContent=r.foodName||r.name;
-  document.getElementById('resScore').textContent=r.score;
-  document.getElementById('resCal').textContent=r.calories;
-  document.getElementById('resProtein').textContent=r.protein;
-  document.getElementById('resCarbs').textContent=r.carbs;
-  document.getElementById('resFat').textContent=r.fat;
-  document.getElementById('resComment').textContent=r.comment||'Güzel!';
-  window.cur={...r,foodName:r.foodName||r.name,image:photo};
+  document.getElementById('resName').textContent=r.foodName||r.name||'Bilinmeyen Yemek';
+  document.getElementById('resScore').textContent=r.score||5;
+  document.getElementById('resCal').textContent=r.calories||0;
+  document.getElementById('resProtein').textContent=r.protein||0;
+  document.getElementById('resCarbs').textContent=r.carbs||0;
+  document.getElementById('resFat').textContent=r.fat||0;
+  document.getElementById('resComment').textContent=r.comment||'Güzel seçim!';
+  window.cur={...r,foodName:r.foodName||r.name,image:compressedPhoto};
   document.getElementById('result').classList.add('show');
 }
 
@@ -726,6 +830,7 @@ function saveFood(){
   document.getElementById('gallery').value='';
   document.getElementById('foodNotes').value='';
   photo=null;
+  compressedPhoto=null;
   window.cur=null;
   updateUI();
   switchTab('home');
@@ -1001,13 +1106,13 @@ function switchTab(t){
 
 function toast(msg){
   const t=document.createElement('div');
-  t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#10B981,#059669);color:white;padding:16px 24px;border-radius:12px;font-weight:600;z-index:9999;box-shadow:0 10px 30px rgba(16,185,129,0.4)';
+  t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#10B981,#059669);color:white;padding:16px 24px;border-radius:12px;font-weight:600;z-index:9999;box-shadow:0 10px 30px rgba(16,185,129,0.4);max-width:90%;text-align:center';
   t.textContent=msg;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),3000);
 }
 
-console.log('🚀 Kalori Pro Premium v2.0 Hazır!');
+console.log('🚀 Kalori Pro Premium v3.0 - Mobile Optimized!');
 </script>
 </body>
 </html>
